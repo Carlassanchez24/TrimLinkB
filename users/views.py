@@ -6,8 +6,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import UserSerializer
 from .models import CustomUser
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import BasePermission
+from URLtrim.models import URL
+from URLtrim.serializers import URLSerializer
 
 
 class RegisterView(APIView):
@@ -55,12 +56,15 @@ class LoginView(APIView):
 
 
 class UserListView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        users = CustomUser.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user = request.user
+
+        user_urls = URL.objects.filter(user=user)
+        serializer = URLSerializer(user_urls, many=True)
+
+        return Response(serializer.data, status=200)
 
 
 class DeleteUserView(APIView):
