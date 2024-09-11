@@ -59,7 +59,6 @@ class UserListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
 
         user_urls = URL.objects.filter(user=user)
         serializer = URLSerializer(user_urls, many=True)
