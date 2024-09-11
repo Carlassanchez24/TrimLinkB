@@ -12,6 +12,7 @@ class URLCreateView(APIView):
 
     def post(self, request):
         original_url = request.data.get('url')
+
         if not original_url:
             return Response({'error': 'No URL provided'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -20,13 +21,18 @@ class URLCreateView(APIView):
             shortened_url = shortener.tinyurl.short(original_url)
 
             user = request.user if request.user.is_authenticated else None
+
             url_entry = URL(original_url=original_url, shortened_url=shortened_url, user=user)
             url_entry.save()
 
             serializer = URLSerializer(url_entry)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except pyshorteners.exceptions.ShorteningErrorException as e:
+            return Response({'error': 'Error shortening the URL: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'An unexpected error occurred: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserURLsView(APIView):
@@ -53,4 +59,5 @@ class DeleteUserURLView(APIView):
             return Response({'detail': 'URL successfully deleted'}, status=status.HTTP_204_NO_CONTENT)
         except URL.DoesNotExist:
             return Response({'error': 'URL not found or not authorized to delete'}, status=status.HTTP_404_NOT_FOUND)
+
 
