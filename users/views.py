@@ -10,7 +10,6 @@ from rest_framework.permissions import BasePermission
 from URLtrim.models import URL
 from URLtrim.serializers import URLSerializer
 
-
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 

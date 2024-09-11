@@ -6,6 +6,7 @@ from .models import URL
 from .serializers import URLSerializer
 import pyshorteners
 
+
 class URLCreateView(APIView):
     permission_classes = [AllowAny]
 
@@ -40,3 +41,16 @@ class UserURLsView(APIView):
         except Exception as e:
             print(f"Error en UserURLsView: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DeleteUserURLView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, url_id):
+        try:
+            url = URL.objects.get(id=url_id, user=request.user)
+            url.delete()
+            return Response({'detail': 'URL successfully deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except URL.DoesNotExist:
+            return Response({'error': 'URL not found or not authorized to delete'}, status=status.HTTP_404_NOT_FOUND)
+
