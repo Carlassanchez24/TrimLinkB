@@ -16,7 +16,7 @@ class URLCreateView(APIView):
             shortener = pyshorteners.Shortener()
             shortened_url = shortener.tinyurl.short(original_url)
 
-            url_entry = URL(user=request.user, original_url=original_url, shortened_url=shortened_url)
+            url_entry = URL(original_url=original_url, shortened_url=shortened_url)
             url_entry.save()
 
             serializer = URLSerializer(url_entry)
@@ -27,6 +27,6 @@ class URLCreateView(APIView):
 
 class UserURLsView(APIView):
     def get(self, request):
-        urls = URL.objects.filter(user=request.user)
+        urls = URL.objects.all()
         serializer = URLSerializer(urls, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
